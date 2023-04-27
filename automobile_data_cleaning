@@ -1,0 +1,102 @@
+  --First, I inspect the data in my table so I can find out if there is any specific cleaning that needs to be done
+  --Then, I run the following query to make sure that values diesel and gas are unique, according to the data`s description
+SELECT
+  DISTINCT fuel_type
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --Next, I will inspect a column with numerical data to make sure that the length column matches the length given in the data`s description
+SELECT
+  MIN(length) AS min_length,
+  MAX(length) AS max_length
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --Next, I am going to check the data for nulls or any missing data. I will use num_of_doors column
+SELECT
+  *
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`
+WHERE
+  num_of_doors IS NULL;
+  --I checked with the sales manager who stated that all Dodge gas sedans and all Mazda diesel sedans sold had four doors. Now I will update the table with new information for Dodge and Mazda
+UPDATE
+  `mollysportfolio.Cleaning_Data.automobile_data`
+SET
+  num_of_doors = "four"
+WHERE
+  make = "dodge"
+  AND fuel_type = "gas"
+  AND body_style = "sedan";
+UPDATE
+  `mollysportfolio.Cleaning_Data.automobile_data`
+SET
+  num_of_doors = "four"
+WHERE
+  make = "mazda"
+  AND fuel_type = "diesel"
+  AND body_style = "sedan";
+SELECT
+  *
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`
+WHERE
+  num_of_doors IS NULL;
+  --I am now checking for other potential errors. I am using num_of_cylinders column
+SELECT
+  DISTINCT num_of_cylinders
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  -- to correct the misspelling for all rows, I will run the following query
+UPDATE
+  `mollysportfolio.Cleaning_Data.automobile_data`
+SET
+  num_of_cylinders = "two"
+WHERE
+  num_of_cylinders = "tow";
+  --To check that the update worked I run the previous query again
+SELECT
+  DISTINCT num_of_cylinders
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --Next, I will check compression_ratio column. According to the data description, it should range from 7 to 23.
+SELECT
+  MIN(compression_ration) AS min_compression_ratio,
+  MAX(compression_ratio) AS max_compression_ratio
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --this returned a maximum of 70. I will run the following query to make sure that the values fall within 7 and 23
+SELECT
+  MIN(compression_ratio) AS min_comression_ratio,
+  MAX(compression_ratio) AS max_compression_ratio
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`
+WHERE
+  compression_ratio <> 70;
+  --To correct the 70 value I check with the sales manager and he said that the row is made in error and needed to be removed.
+SELECT
+  COUNT(*) AS num_of_rows_to_delete
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`
+WHERE
+  compression_ratio = 70;
+DELETE
+  `mollysportfolio.Cleaning_Data.automobile_data`
+WHERE
+  compression_ratio = 70;
+  --Checking the data for inconsistencies
+SELECT
+  DISTINCT drive_wheels
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --Checking if there`s an extra space in one of the values
+SELECT
+  DISTINCT drive_wheels,
+  LENGTH(drive_wheels) AS string_length
+FROM
+  `mollysportfolio.Cleaning_Data.automobile_data`;
+  --Removing all extra spaces
+UPDATE
+  `mollysportfolio.Cleaning_Data.automobile_data`
+SET
+  drive_wheels = TRIM(drive_wheels)
+WHERE
+  TRUE;
